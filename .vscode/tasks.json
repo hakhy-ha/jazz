@@ -1,0 +1,57 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Test echo",
+			"type": "shell",
+			"command": "cmd.exe /c \"echo test\"",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Firebase Build and Export",
+			"type": "shell",
+			"command": "cmd.exe",
+			"args": [
+				"/c",
+				"cd /d C:\\Users\\LENOVO\\Desktop\\Jazz && npm --workspace @jazz/web run build && npm --workspace @jazz/web run export"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Firebase Build and Export 2",
+			"type": "shell",
+			"command": "cmd.exe",
+			"args": [
+				"/c",
+				"cd /d C:\\Users\\LENOVO\\Desktop\\Jazz && npm --workspace @jazz/web run build && npm --workspace @jazz/web run export"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Firebase Build and Export",
+			"type": "shell",
+			"command": "cmd.exe",
+			"args": [
+				"/c",
+				"cd /d C:\\Users\\LENOVO\\Desktop\\Jazz && npm --workspace @jazz/web run build && npm --workspace @jazz/web run export"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Firebase Deploy Hosting",
+			"type": "shell",
+			"command": "cmd.exe",
+			"args": [
+				"/c",
+				"cd /d C:\\Users\\LENOVO\\Desktop\\Jazz && firebase deploy --only hosting"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

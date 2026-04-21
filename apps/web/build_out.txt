@@ -1,0 +1,55 @@
+
+> @jazz/web@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+
+   Linting and checking validity of types ...
+
+./pages/feed.tsx
+59:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+79:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./pages/user/[userId].tsx
+83:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/AvatarUpload.tsx
+7:22  Warning: 'url' is defined but never used. Allowed unused args must match /^_/u.  no-unused-vars
+59:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./components/CommentSection.tsx
+2:8  Warning: 'api' is defined but never used.  no-unused-vars
+9:34  Warning: 'postId' is defined but never used. Allowed unused args must match /^_/u.  no-unused-vars
+
+./components/LikeButton.tsx
+2:8  Warning: 'api' is defined but never used.  no-unused-vars
+10:30  Warning: 'postId' is defined but never used. Allowed unused args must match /^_/u.  no-unused-vars
+
+./lib/firebase.ts
+6:33  Warning: 'firebaseSignInWithEmailAndPassword' is defined but never used.  no-unused-vars
+16:56  Warning: 'StorageReference' is defined but never used.  no-unused-vars
+82:55  Warning: 'user' is defined but never used. Allowed unused args must match /^_/u.  no-unused-vars
+122:46  Warning: 'payload' is defined but never used. Allowed unused args must match /^_/u.  no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+Failed to compile.
+
+./pages/user/[userId].tsx:3:24
+Type error: Cannot find module '../components/Layout' or its corresponding type declarations.
+
+[0m [90m 1 |[39m [36mimport[39m { useEffect[33m,[39m useState } [36mfrom[39m [32m'react'[39m[33m;[39m[0m
+[0m [90m 2 |[39m [36mimport[39m { useRouter } [36mfrom[39m [32m'next/router'[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { [33mLayout[39m } [36mfrom[39m [32m'../components/Layout'[39m[33m;[39m[0m
+[0m [90m   |[39m                        [31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { [33mFollowButton[39m } [36mfrom[39m [32m'../components/FollowButton'[39m[33m;[39m[0m
+[0m [90m 5 |[39m[0m
+[0m [90m 6 |[39m [90m// Import api separately to avoid module resolution issues[39m[0m
+Next.js build worker exited with code: 1 and signal: null
+npm error Lifecycle script `build` failed with error:
+npm error code 1
+npm error path C:\Users\LENOVO\Desktop\Jazz\apps\web
+npm error workspace @jazz/web@0.1.0
+npm error location C:\Users\LENOVO\Desktop\Jazz\apps\web
+npm error command failed
+npm error command C:\Windows\system32\cmd.exe /d /s /c next build

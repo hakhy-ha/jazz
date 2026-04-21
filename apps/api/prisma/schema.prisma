@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  phone          String?         @unique
+  firebaseUid    String?         @unique
+  password       String
+  name           String
+  nickname       String?
+  avatarUrl      String?
+  bio            String?
+  createdAt      DateTime        @default(now())
+  refreshTokens  RefreshToken[]
+  sentRequests   FriendRequest[] @relation("sender")
+  receivedRequests FriendRequest[] @relation("receiver")
+  sentMessages   Message[]       @relation("sender")
+  receivedMessages Message[]     @relation("receiver")
+  posts          Post[]
+  comments       Comment[]
+  reactions      Reaction[]
+  notifications  Notification[]
+  streams        StreamSession[]
+  followers      Follow[]        @relation("following")
+  following      Follow[]        @relation("follower")
+  fcmToken       String?
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model FriendRequest {
+  id         String   @id @default(uuid())
+  sender     User     @relation("sender", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User     @relation("receiver", fields: [receiverId], references: [id])
+  receiverId String
+  status     String   @default("PENDING")
+  createdAt  DateTime @default(now())
+}
+
+model Message {
+  id         String         @id @default(uuid())
+  sender     User           @relation("sender", fields: [senderId], references: [id])
+  senderId   String
+  receiver   User           @relation("receiver", fields: [receiverId], references: [id])
+  receiverId String
+  content    String?
+  mediaUrl   String?
+  type       String         @default("TEXT")
+  status     String         @default("SENT")
+  createdAt  DateTime       @default(now())
+}
+
+model Post {
+  id         String     @id @default(uuid())
+  user       User       @relation(fields: [userId], references: [id])
+  userId     String
+  caption    String?
+  mediaUrl   String?
+  mediaType  String     @default("IMAGE")
+  comments   Comment[]
+  reactions  Reaction[]
+  createdAt  DateTime   @default(now())
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Reaction {
+  id        String   @id @default(uuid())
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String            @id @default(uuid())
+  user      User              @relation(fields: [userId], references: [id])
+  userId    String
+  type      String // LIKE, COMMENT, FOLLOW, FRIEND_REQUEST
+  payload   String // JSON string with additional data
+  read      Boolean           @default(false)
+  createdAt DateTime          @default(now())
+}
+
+model StreamSession {
+  id        String   @id @default(uuid())
+  host      User     @relation(fields: [hostId], references: [id])
+  hostId    String
+  title     String
+  isLive    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  follower    User     @relation("follower", fields: [followerId], references: [id])
+  followerId  String
+  following   User     @relation("following", fields: [followingId], references: [id])
+  followingId String
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}

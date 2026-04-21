@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "lib": ["dom", "dom.iterable", "es2022"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@jazz/ui": ["packages/ui/src"],
+      "@jazz/types": ["packages/types/src"],
+      "@jazz/utils": ["packages/utils/src"]
+    }
+  },
+  "include": ["packages/**/*", "apps/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
