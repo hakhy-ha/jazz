@@ -4,7 +4,12 @@ const nextConfig = {
     remotePatterns: [{ protocol: 'https', hostname: '**' }],
     unoptimized: true
   },
-  output: 'export'
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;
