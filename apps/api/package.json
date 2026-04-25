@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node dist/main.js",
     "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
-    "start:prod": "node dist/main.js",
-    "build": "tsc -p tsconfig.json",
+    "start:prod": "prisma migrate deploy && node dist/main.js",
+    "build": "tsc -p tsconfig.json && prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init --preview-feature",
     "prisma:seed": "node prisma/seed.js"

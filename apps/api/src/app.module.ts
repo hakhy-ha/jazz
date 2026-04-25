@@ -8,6 +8,7 @@ import { MessagesModule } from './messages/messages.module';
 import { PostsModule } from './posts/posts.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FollowsModule } from './follows/follows.module';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { FollowsModule } from './follows/follows.module';
     PostsModule,
     NotificationsModule,
     FollowsModule
-  ]
+  ],
+  controllers: [HealthController]
 })
 export class AppModule {}

@@ -1,19 +1,51 @@
 services:
   - type: web
     name: jazz-api
-    runtime: node
-    buildCommand: chmod +x apps/api/render-build.sh && ./apps/api/render-build.sh
-    startCommand: cd apps/api && npm run start:prod
+    env: node
+    buildCommand: npm install && npm run --workspace @jazz/api prisma:generate && npm run --workspace @jazz/api build
+    startCommand: npm run --workspace @jazz/api start:prod
+    plan: free
     envVars:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET
-        generateValue: true
+        sync: false
       - key: FIREBASE_PROJECT_ID
         value: hakhy-chat
       - key: FIREBASE_PRIVATE_KEY
         sync: false
       - key: FIREBASE_CLIENT_EMAIL
         sync: false
+      - key: FIREBASE_API_KEY
+        value: AIzaSyAUTRFwmPf47uFKAGLJRX_txa-tsxTubG8
+      - key: FIREBASE_AUTH_DOMAIN
+        value: hakhy-chat.firebaseapp.com
+      - key: FIREBASE_STORAGE_BUCKET
+        value: hakhy-chat.appspot.com
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        value: 1060910683787
+      - key: FIREBASE_APP_ID
+        value: 1:1060910683787:web:aee9be9fbe5ebe1e91268e
+  - type: web
+    name: jazz-web
+    env: node
+    buildCommand: npm install && npm run --workspace @jazz/web build
+    startCommand: npm run --workspace @jazz/web start
+    plan: free
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://jazz-api.onrender.com
+      - key: NEXT_PUBLIC_FIREBASE_API_KEY
+        value: AIzaSyAUTRFwmPf47uFKAGLJRX_txa-tsxTubG8
+      - key: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+        value: hakhy-chat.firebaseapp.com
+      - key: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+        value: hakhy-chat
+      - key: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+        value: hakhy-chat.appspot.com
+      - key: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+        value: 1060910683787
+      - key: NEXT_PUBLIC_FIREBASE_APP_ID
+        value: 1:1060910683787:web:aee9be9fbe5ebe1e91268e

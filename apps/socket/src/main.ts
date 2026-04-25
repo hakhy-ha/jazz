@@ -78,6 +78,29 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     if (socket.data.userId) {
       activeUsers.delete(socket.data.userId);
+      // Broadcast offline status if needed
+    }
+  });
+
+  // WhatsApp-style typing and read receipts
+  socket.on('typing', ({ to }: { to: string }) => {
+    const targetSocketId = activeUsers.get(to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit('typing', { from: socket.data.userId });
+    }
+  });
+
+  socket.on('stopTyping', ({ to }: { to: string }) => {
+    const targetSocketId = activeUsers.get(to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit('stopTyping', { from: socket.data.userId });
+    }
+  });
+
+  socket.on('message:read', ({ to, messageId }: { to: string; messageId: string }) => {
+    const targetSocketId = activeUsers.get(to);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit('message:read', { from: socket.data.userId, messageId });
     }
   });
 });

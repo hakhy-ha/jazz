@@ -4,10 +4,10 @@ set -e
 echo "Installing dependencies..."
 npm install
 
-echo "Building application..."
-npm run build
-
 echo "Generating Prisma client..."
-npm run prisma:generate
+npm run --workspace @jazz/api prisma:generate
+
+echo "Building API..."
+npm run --workspace @jazz/api build
 
 echo "Build completed successfully!"
