@@ -36,7 +36,7 @@ services:
     plan: free
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        value: https://jazz-api.onrender.com
+        value: https://jazz-api-wdkr.onrender.com
       - key: NEXT_PUBLIC_FIREBASE_API_KEY
         value: AIzaSyAUTRFwmPf47uFKAGLJRX_txa-tsxTubG8
       - key: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
