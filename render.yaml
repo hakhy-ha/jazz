@@ -6,7 +6,7 @@ services:
   - type: web
     name: jazz-api
     env: node
-    buildCommand: npm install && npm run --workspace @jazz/api prisma:generate && npm run --workspace @jazz/api build
+    buildCommand: npm install --include=dev && npm run --workspace @jazz/api prisma:generate && npm run --workspace @jazz/api build
     startCommand: npm run --workspace @jazz/api start:prod
     plan: free
     envVars:
@@ -37,7 +37,7 @@ services:
   - type: web
     name: jazz-web
     env: node
-    buildCommand: npm install && npm run --workspace @jazz/web build
+    buildCommand: npm install --include=dev && npm run --workspace @jazz/web build
     startCommand: npm run --workspace @jazz/web start
     plan: free
     envVars:
