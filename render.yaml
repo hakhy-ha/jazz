@@ -1,3 +1,7 @@
+databases:
+  - name: jazz-db
+    plan: free
+
 services:
   - type: web
     name: jazz-api
@@ -9,7 +13,9 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: jazz-db
+          property: connectionString
       - key: JWT_SECRET
         sync: false
       - key: FIREBASE_PROJECT_ID
