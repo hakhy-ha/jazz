@@ -3,6 +3,7 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/router';
 import api, { setAuthTokens } from '../../lib/api';
 import { firebaseRegister } from '../../lib/firebase';
+import LogoLoader from '../../components/LogoLoader';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -51,9 +52,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 text-white">
-      <h1 className="mb-6 text-4xl font-semibold text-lime-400">Create your Jazz account</h1>
-      <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-white/10 bg-surface p-6 shadow-xl">
+    <>
+      <LogoLoader isLoading={isSubmitting} message="Creating your account..." />
+      <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 text-white">
+        <h1 className="mb-6 text-4xl font-semibold text-lime-400">Create your Jazz account</h1>
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-white/10 bg-surface p-6 shadow-xl">
         <label className="block space-y-2 text-sm">
           <span>Name</span>
           <input
@@ -106,5 +109,6 @@ export default function RegisterPage() {
         Already have an account? <Link href="/auth/login" className="text-lime-300">Sign in</Link>
       </div>
     </div>
+    </>
   );
 }

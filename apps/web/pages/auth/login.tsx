@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { FormEvent, useState } from 'react';
 import api, { setAuthTokens } from '../../lib/api';
 import { firebaseGoogleSignIn } from '../../lib/firebase';
+import LogoLoader from '../../components/LogoLoader';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -69,9 +70,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 text-white">
-      <h1 className="mb-6 text-4xl font-semibold text-lime-400">Welcome back to Jazz</h1>
-      <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-white/10 bg-surface p-6 shadow-xl">
+    <>
+      <LogoLoader isLoading={isSubmitting} message="Logging you in..." />
+      <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 text-white">
+        <h1 className="mb-6 text-4xl font-semibold text-lime-400">Welcome back to Jazz</h1>
+        <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-white/10 bg-surface p-6 shadow-xl">
         <label className="block space-y-2 text-sm">
           <span>Email</span>
           <input
@@ -132,5 +135,6 @@ export default function LoginPage() {
         No account? <Link href="/auth/register" className="text-lime-300">Create one</Link>
       </div>
     </div>
+    </>
   );
 }
