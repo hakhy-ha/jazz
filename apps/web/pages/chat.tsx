@@ -4,6 +4,7 @@ import { uploadFile } from '../lib/firebase';
 import { useRequireAuth } from '../lib/auth';
 import { Search, Phone, Video, MoreVertical, Paperclip, Mic, Smile, Send, Check, CheckCheck } from 'lucide-react';
 import Head from 'next/head';
+import { io } from 'socket.io-client';
 
 type Message = {
   id: string;
@@ -43,6 +44,13 @@ export default function ChatPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [peerIsTyping, setPeerIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const socketRef = useRef<any>(null);
+  const peerIdRef = useRef(peerId);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    peerIdRef.current = peerId;
+  }, [peerId]);
 
   useEffect(() => {
     loadFriends();
@@ -58,9 +66,75 @@ export default function ChatPage() {
     }
   }
 
+  // Socket Connection and Event Listeners
+  useEffect(() => {
+    if (!authUser?.id) return;
+
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5001';
+    const socket = io(socketUrl);
+    socketRef.current = socket;
+
+    socket.emit('register', { userId: authUser.id });
+
+    socket.on('connect', () => {
+      console.log('Connected to socket server');
+    });
+
+    socket.on('chat:message', (payload: { to: string; message: any; senderId: string }) => {
+      const receivedMessage = payload.message;
+      if (receivedMessage.senderId === peerIdRef.current) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === receivedMessage.id)) return prev;
+          return [...prev, receivedMessage];
+        });
+
+        // Mark as seen and emit read acknowledgment
+        api.patch(`/messages/${receivedMessage.id}/seen`).catch(console.error);
+        socket.emit('message:read', { to: receivedMessage.senderId, messageId: receivedMessage.id });
+      }
+    });
+
+    socket.on('typing', ({ from }: { from: string }) => {
+      if (from === peerIdRef.current) {
+        setPeerIsTyping(true);
+      }
+    });
+
+    socket.on('stopTyping', ({ from }: { from: string }) => {
+      if (from === peerIdRef.current) {
+        setPeerIsTyping(false);
+      }
+    });
+
+    socket.on('message:read', ({ from, messageId }: { from: string; messageId: string }) => {
+      if (from === peerIdRef.current) {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === messageId ? { ...m, status: 'SEEN' } : m))
+        );
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [authUser?.id]);
+
+  // Load message conversation and auto-read messages
   useEffect(() => {
     if (peerId) {
-      api.get(`/messages/${peerId}`).then((res) => setMessages(res.data)).catch(() => {});
+      api.get(`/messages/${peerId}`).then((res) => {
+        setMessages(res.data);
+        // Automatically mark all incoming unread messages as read
+        res.data.forEach((msg: Message) => {
+          if (msg.senderId === peerId && msg.status !== 'SEEN') {
+            api.patch(`/messages/${msg.id}/seen`).catch(console.error);
+            if (socketRef.current) {
+              socketRef.current.emit('message:read', { to: peerId, messageId: msg.id });
+            }
+          }
+        });
+      }).catch(() => {});
+
       const friend = friends.find(f => f.user.id === peerId);
       if (friend) {
         setPeerUser({ ...friend.user, isOnline: true }); // Simulated online status
@@ -106,19 +180,23 @@ export default function ChatPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setContent(e.target.value);
     
-    // Simulate typing indicator
     if (!isTyping) {
       setIsTyping(true);
-      // Here we would emit 'typing' socket event
+      if (socketRef.current && peerId) {
+        socketRef.current.emit('typing', { to: peerId });
+      }
     }
     
-    // Clear typing after 2 seconds of no input
-    const timeoutId = setTimeout(() => {
-      setIsTyping(false);
-      // Emit 'stopTyping' event
-    }, 2000);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
     
-    return () => clearTimeout(timeoutId);
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      if (socketRef.current && peerId) {
+        socketRef.current.emit('stopTyping', { to: peerId });
+      }
+    }, 2000);
   };
 
   async function sendTextMessage(e: React.FormEvent) {
@@ -127,7 +205,7 @@ export default function ChatPage() {
 
     // Optimistic UI update
     const tempMessage: Message = {
-      id: Date.now().toString(),
+      id: 'temp-' + Date.now().toString(),
       senderId: authUser?.id || '',
       receiverId: peerId,
       content,
@@ -140,29 +218,24 @@ export default function ChatPage() {
     setContent('');
     setIsTyping(false);
 
+    if (socketRef.current) {
+      socketRef.current.emit('stopTyping', { to: peerId });
+    }
+
     try {
       const response = await api.post('/messages', { receiverId: peerId, type: 'TEXT', content });
-      // Update with real message
       setMessages((prev) => prev.map(m => m.id === tempMessage.id ? response.data : m));
       
-      // Simulate fake reply after 3 seconds for showcase
-      setTimeout(() => setPeerIsTyping(true), 1500);
-      setTimeout(() => {
-        setPeerIsTyping(false);
-        const replyMessage: Message = {
-          id: Date.now().toString(),
-          senderId: peerId,
-          receiverId: authUser?.id || '',
-          content: 'That sounds awesome! 😎',
-          type: 'TEXT',
-          status: 'READ',
-          createdAt: new Date().toISOString()
-        };
-        setMessages((prev) => [...prev, replyMessage]);
-      }, 4000);
-
+      if (socketRef.current) {
+        socketRef.current.emit('chat:message', {
+          to: peerId,
+          message: response.data,
+          senderId: authUser?.id
+        });
+      }
     } catch (err) {
       console.error('Send text failed', err);
+      setMessages((prev) => prev.filter(m => m.id !== tempMessage.id));
     }
   }
 
@@ -313,8 +386,16 @@ export default function ChatPage() {
                           {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         {isSent && (
-                          <span className="text-[#53bdeb] ml-0.5">
-                            <CheckCheck className="w-[15px] h-[15px]" />
+                          <span className="ml-0.5">
+                            {message.status === 'SENT' && (
+                              <Check className="w-[15px] h-[15px] text-white/50" />
+                            )}
+                            {message.status === 'DELIVERED' && (
+                              <CheckCheck className="w-[15px] h-[15px] text-white/50" />
+                            )}
+                            {message.status === 'SEEN' && (
+                              <CheckCheck className="w-[15px] h-[15px] text-[#53bdeb]" />
+                            )}
                           </span>
                         )}
                       </div>
